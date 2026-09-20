@@ -12,6 +12,9 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
+  verification: {
+    google: "3YSEZUduDeXRiQO9wCYLKE3MBGXCSDrI07pFwf3XSWU",
+  },
   title: {
     default: "ToolHub - Free Online Tools & Calculators",
     template: "%s",
