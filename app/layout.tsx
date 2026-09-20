@@ -16,11 +16,11 @@ export const metadata: Metadata = {
     google: "3YSEZUduDeXRiQO9wCYLKE3MBGXCSDrI07pFwf3XSWU",
   },
   title: {
-    default: "ToolHub - Free Online Tools & Calculators",
+    default: "ToolHub - Free Online Tools",
     template: "%s",
   },
   description:
-    "Free, fast, browser-based tools and calculators for math, dates, writing, and everyday tasks. No sign-up required.",
+    "Free browser-based tools. No sign-up, no downloads.",
   openGraph: {
     siteName: "ToolHub",
     type: "website",
