@@ -11,6 +11,10 @@ import { caseConverterMeta } from "@/tools/case-converter/meta";
 import { gpaCalculatorMeta } from "@/tools/gpa-calculator/meta";
 import { randomNumberGeneratorMeta } from "@/tools/random-number-generator/meta";
 import { passwordGeneratorMeta } from "@/tools/password-generator/meta";
+import { qrCodeGeneratorMeta } from "@/tools/qr-code-generator/meta";
+import { unitConverterMeta } from "@/tools/unit-converter/meta";
+import { typingSpeedTestMeta } from "@/tools/typing-speed-test/meta";
+import { emiLoanCalculatorMeta } from "@/tools/emi-loan-calculator/meta";
 
 export const toolsRegistry: Tool[] = [
   percentageCalculatorMeta,
@@ -24,6 +28,10 @@ export const toolsRegistry: Tool[] = [
   gpaCalculatorMeta,
   randomNumberGeneratorMeta,
   passwordGeneratorMeta,
+  qrCodeGeneratorMeta,
+  unitConverterMeta,
+  typingSpeedTestMeta,
+  emiLoanCalculatorMeta,
 ];
 
 export const getToolBySlug = (slug: string): Tool | undefined =>
