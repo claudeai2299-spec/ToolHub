@@ -16,10 +16,13 @@ import { qrCodeGeneratorMeta } from "@/tools/qr-code-generator/meta";
 import { unitConverterMeta } from "@/tools/unit-converter/meta";
 import { typingSpeedTestMeta } from "@/tools/typing-speed-test/meta";
 import { emiLoanCalculatorMeta } from "@/tools/emi-loan-calculator/meta";
+import { jsonFormatterMeta } from "@/tools/json-formatter/meta";
+import { uuidGeneratorMeta } from "@/tools/uuid-generator/meta";
+import { timestampConverterMeta } from "@/tools/timestamp-converter/meta";
+import { gstTaxCalculatorMeta } from "@/tools/gst-tax-calculator/meta";
+import { jpgPngConverterMeta } from "@/tools/jpg-png-converter/meta";
+import { imageResizerMeta } from "@/tools/image-resizer/meta";
 
-// Raw list of every tool's own meta.ts (category/popular/featured values here
-// are DEFAULTS — they get overridden below by lib/site-config.ts, which is
-// the single place to edit for category moves or popular/featured changes).
 const rawTools: Tool[] = [
   percentageCalculatorMeta,
   averageCalculatorMeta,
@@ -36,9 +39,14 @@ const rawTools: Tool[] = [
   unitConverterMeta,
   typingSpeedTestMeta,
   emiLoanCalculatorMeta,
+  jsonFormatterMeta,
+  uuidGeneratorMeta,
+  timestampConverterMeta,
+  gstTaxCalculatorMeta,
+  jpgPngConverterMeta,
+  imageResizerMeta,
 ];
 
-// Apply site-config.ts overrides on top of each tool's own meta.ts.
 const configuredTools: Tool[] = rawTools.map((tool) => ({
   ...tool,
   category: TOOL_CATEGORIES[tool.slug] ?? tool.category,
@@ -46,7 +54,6 @@ const configuredTools: Tool[] = rawTools.map((tool) => ({
   featured: FEATURED_TOOLS.includes(tool.slug),
 }));
 
-// Sort "popular" tools to match the order defined in POPULAR_TOOLS.
 export const toolsRegistry: Tool[] = [...configuredTools].sort((a, b) => {
   const aIndex = POPULAR_TOOLS.indexOf(a.slug);
   const bIndex = POPULAR_TOOLS.indexOf(b.slug);
