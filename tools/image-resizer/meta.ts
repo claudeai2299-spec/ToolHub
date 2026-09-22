@@ -31,6 +31,9 @@ export const imageResizerMeta: Tool = {
       "Resizing happens locally in your browser using the Canvas API — your image is never uploaded to a server.",
       "The downloaded file is always in PNG format regardless of the original file type.",
     ],
+    examples: [
+      "A 3000×2000px photo resized to 1200px wide keeps its proportions at 1200×800px",
+    ],
     faqs: [
       {
         question: "What happens if I unlock the aspect ratio?",
