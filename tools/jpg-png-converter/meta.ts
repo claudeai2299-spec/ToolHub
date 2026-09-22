@@ -31,6 +31,9 @@ export const jpgPngConverterMeta: Tool = {
       "Your image never leaves your device — conversion happens locally using your browser's built-in image rendering.",
       "PNG supports transparency; JPG does not, so transparent areas are filled with white when converting to JPG.",
     ],
+    examples: [
+      "A transparent PNG logo converts to JPG with a white background filled in",
+    ],
     faqs: [
       {
         question: "Will I lose image quality converting to JPG?",
