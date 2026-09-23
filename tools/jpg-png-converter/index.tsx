@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 import { Upload, Download } from "lucide-react";
 import Button from "@/components/ui/Button";
 
@@ -8,9 +8,10 @@ export default function JpgPngConverter() {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [fileName, setFileName] = useState("");
   const [error, setError] = useState("");
+  const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFile = (file: File) => {
+  const processFile = useCallback((file: File) => {
     if (!file.type.startsWith("image/")) {
       setError("Please select an image file.");
       return;
@@ -20,11 +21,18 @@ export default function JpgPngConverter() {
     const reader = new FileReader();
     reader.onload = () => setImageUrl(reader.result as string);
     reader.readAsDataURL(file);
-  };
+  }, []);
 
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) handleFile(file);
+    if (file) processFile(file);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) processFile(file);
   };
 
   const convertAndDownload = (format: "png" | "jpeg") => {
@@ -38,7 +46,6 @@ export default function JpgPngConverter() {
       const ctx = canvas.getContext("2d");
       if (!ctx) return;
 
-      // JPEG has no transparency, so fill a white background first.
       if (format === "jpeg") {
         ctx.fillStyle = "#ffffff";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -65,27 +72,36 @@ export default function JpgPngConverter() {
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="image-file" className="text-sm font-medium text-slate-700">
-          Upload an image
-        </label>
-        <input
-          ref={fileInputRef}
-          id="image-file"
-          type="file"
-          accept="image/*"
-          onChange={handleFileInput}
-          className="block w-full text-sm text-slate-600 file:mr-4 file:rounded-lg file:border-0 file:bg-blue-50 file:px-4 file:py-2.5 file:text-sm file:font-semibold file:text-blue-700 hover:file:bg-blue-100"
-        />
-      </div>
-
-      {error && (
-        <p role="alert" className="text-sm text-red-600">
-          {error}
-        </p>
-      )}
-
-      {imageUrl && (
+      {!imageUrl ? (
+        <div
+          onDragOver={(e) => {
+            e.preventDefault();
+            setIsDragging(true);
+          }}
+          onDragLeave={() => setIsDragging(false)}
+          onDrop={handleDrop}
+          onClick={() => fileInputRef.current?.click()}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => e.key === "Enter" && fileInputRef.current?.click()}
+          className={`flex cursor-pointer flex-col items-center gap-2 rounded-xl border-2 border-dashed p-10 text-center transition-colors ${
+            isDragging ? "border-blue-400 bg-blue-50" : "border-slate-300 hover:border-slate-400"
+          }`}
+        >
+          <Upload className="h-8 w-8 text-slate-400" aria-hidden="true" />
+          <p className="text-sm font-medium text-slate-600">
+            Click to choose an image, or drag and drop it here
+          </p>
+          <p className="text-xs text-slate-400">Converts between JPG and PNG</p>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleFileInput}
+            className="hidden"
+          />
+        </div>
+      ) : (
         <div className="flex flex-col gap-4">
           <div className="flex justify-center rounded-xl border border-slate-200 bg-slate-50 p-4">
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -102,17 +118,16 @@ export default function JpgPngConverter() {
               Download as JPG
             </Button>
             <Button variant="secondary" onClick={reset}>
-              Clear
+              Choose different image
             </Button>
           </div>
         </div>
       )}
 
-      {!imageUrl && (
-        <div className="flex flex-col items-center gap-2 rounded-xl border border-dashed border-slate-300 p-8 text-center text-slate-400">
-          <Upload className="h-8 w-8" aria-hidden="true" />
-          <p className="text-sm">Choose an image above to convert it</p>
-        </div>
+      {error && (
+        <p role="alert" className="text-sm text-red-600">
+          {error}
+        </p>
       )}
     </div>
   );
