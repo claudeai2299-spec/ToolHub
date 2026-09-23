@@ -1,9 +1,16 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { Upload, Download } from "lucide-react";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { Upload, Download, ImageIcon } from "lucide-react";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
+
+const PRESETS = [
+  { label: "50%", scale: 0.5 },
+  { label: "25%", scale: 0.25 },
+  { label: "Instagram (1080×1080)", width: 1080, height: 1080 },
+  { label: "HD (1920×1080)", width: 1920, height: 1080 },
+];
 
 export default function ImageResizer() {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
@@ -14,6 +21,7 @@ export default function ImageResizer() {
   const [height, setHeight] = useState("");
   const [lockAspect, setLockAspect] = useState(true);
   const [error, setError] = useState("");
+  const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -28,9 +36,7 @@ export default function ImageResizer() {
     img.src = imageUrl;
   }, [imageUrl]);
 
-  const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const processFile = useCallback((file: File) => {
     if (!file.type.startsWith("image/")) {
       setError("Please select an image file.");
       return;
@@ -40,6 +46,28 @@ export default function ImageResizer() {
     const reader = new FileReader();
     reader.onload = () => setImageUrl(reader.result as string);
     reader.readAsDataURL(file);
+  }, []);
+
+  const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) processFile(file);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) processFile(file);
+  };
+
+  const applyPreset = (preset: (typeof PRESETS)[number]) => {
+    if ("scale" in preset && originalWidth && originalHeight) {
+      setWidth(`${Math.round(originalWidth * preset.scale)}`);
+      setHeight(`${Math.round(originalHeight * preset.scale)}`);
+    } else if ("width" in preset && "height" in preset) {
+      setWidth(`${preset.width}`);
+      setHeight(`${preset.height}`);
+    }
   };
 
   const handleWidthChange = (value: string) => {
@@ -100,27 +128,36 @@ export default function ImageResizer() {
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="resize-file" className="text-sm font-medium text-slate-700">
-          Upload an image
-        </label>
-        <input
-          ref={fileInputRef}
-          id="resize-file"
-          type="file"
-          accept="image/*"
-          onChange={handleFileInput}
-          className="block w-full text-sm text-slate-600 file:mr-4 file:rounded-lg file:border-0 file:bg-blue-50 file:px-4 file:py-2.5 file:text-sm file:font-semibold file:text-blue-700 hover:file:bg-blue-100"
-        />
-      </div>
-
-      {error && (
-        <p role="alert" className="text-sm text-red-600">
-          {error}
-        </p>
-      )}
-
-      {imageUrl && (
+      {!imageUrl ? (
+        <div
+          onDragOver={(e) => {
+            e.preventDefault();
+            setIsDragging(true);
+          }}
+          onDragLeave={() => setIsDragging(false)}
+          onDrop={handleDrop}
+          onClick={() => fileInputRef.current?.click()}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => e.key === "Enter" && fileInputRef.current?.click()}
+          className={`flex cursor-pointer flex-col items-center gap-2 rounded-xl border-2 border-dashed p-10 text-center transition-colors ${
+            isDragging ? "border-blue-400 bg-blue-50" : "border-slate-300 hover:border-slate-400"
+          }`}
+        >
+          <Upload className="h-8 w-8 text-slate-400" aria-hidden="true" />
+          <p className="text-sm font-medium text-slate-600">
+            Click to choose an image, or drag and drop it here
+          </p>
+          <p className="text-xs text-slate-400">PNG, JPG, WEBP supported</p>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleFileInput}
+            className="hidden"
+          />
+        </div>
+      ) : (
         <div className="flex flex-col gap-4">
           <div className="flex justify-center rounded-xl border border-slate-200 bg-slate-50 p-4">
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -129,6 +166,19 @@ export default function ImageResizer() {
           <p className="text-center text-sm text-slate-500">
             Original: {originalWidth} × {originalHeight}px
           </p>
+
+          <div className="flex flex-wrap gap-2">
+            {PRESETS.map((preset) => (
+              <button
+                key={preset.label}
+                type="button"
+                onClick={() => applyPreset(preset)}
+                className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-200"
+              >
+                {preset.label}
+              </button>
+            ))}
+          </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Input
@@ -157,23 +207,28 @@ export default function ImageResizer() {
             Lock aspect ratio
           </label>
 
+          {error && (
+            <p role="alert" className="text-sm text-red-600">
+              {error}
+            </p>
+          )}
+
           <div className="flex gap-3">
             <Button onClick={download}>
               <Download className="mr-1.5 h-4 w-4" aria-hidden="true" />
               Download resized image
             </Button>
             <Button variant="secondary" onClick={reset}>
-              Clear
+              Choose different image
             </Button>
           </div>
         </div>
       )}
 
-      {!imageUrl && (
-        <div className="flex flex-col items-center gap-2 rounded-xl border border-dashed border-slate-300 p-8 text-center text-slate-400">
-          <Upload className="h-8 w-8" aria-hidden="true" />
-          <p className="text-sm">Choose an image above to resize it</p>
-        </div>
+      {!imageUrl && error && (
+        <p role="alert" className="text-sm text-red-600">
+          {error}
+        </p>
       )}
     </div>
   );
