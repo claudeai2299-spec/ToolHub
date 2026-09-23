@@ -1,11 +1,15 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Upload, Download, ImageIcon } from "lucide-react";
+import { Upload, Download } from "lucide-react";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 
-const PRESETS = [
+type Preset =
+  | { label: string; scale: number }
+  | { label: string; width: number; height: number };
+
+const PRESETS: Preset[] = [
   { label: "50%", scale: 0.5 },
   { label: "25%", scale: 0.25 },
   { label: "Instagram (1080×1080)", width: 1080, height: 1080 },
@@ -60,11 +64,13 @@ export default function ImageResizer() {
     if (file) processFile(file);
   };
 
-  const applyPreset = (preset: (typeof PRESETS)[number]) => {
-    if ("scale" in preset && originalWidth && originalHeight) {
-      setWidth(`${Math.round(originalWidth * preset.scale)}`);
-      setHeight(`${Math.round(originalHeight * preset.scale)}`);
-    } else if ("width" in preset && "height" in preset) {
+  const applyPreset = (preset: Preset) => {
+    if ("scale" in preset) {
+      if (originalWidth && originalHeight) {
+        setWidth(`${Math.round(originalWidth * preset.scale)}`);
+        setHeight(`${Math.round(originalHeight * preset.scale)}`);
+      }
+    } else {
       setWidth(`${preset.width}`);
       setHeight(`${preset.height}`);
     }
