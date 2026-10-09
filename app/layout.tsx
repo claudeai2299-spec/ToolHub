@@ -15,6 +15,9 @@ export const metadata: Metadata = {
   verification: {
     google: "3YSEZUduDeXRiQO9wCYLKE3MBGXCSDrI07pFwf3XSWU",
   },
+  other: {
+    "google-adsense-account": "ca-pub-7019363107057449",
+  },
   title: {
     default: "ToolHub - Free Online Tools",
     template: "%s",
@@ -33,6 +36,13 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
+      <head>
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7019363107057449"
+          crossOrigin="anonymous"
+        />
+      </head>
       <body className="flex min-h-screen flex-col antialiased">
         <Header />
         <div className="flex-1">{children}</div>
